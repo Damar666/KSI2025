@@ -3,8 +3,8 @@
 $mahasiswa = [
     [
         'nim' => '2211040001',
-        'nama' => 'Ahmad Fauzi',
-        'jurusan' => 'Teknik Informatika',
+        'nama' => 'Zakkya Nurhadi',
+        'jurusan' => 'Manajemen Informatika',
         'semester' => 5,
         'ipk' => 3.75
     ],
@@ -39,7 +39,8 @@ $mahasiswa = [
 ];
 
 // Fungsi untuk menentukan status IPK
-function getStatusIPK($ipk) {
+function getStatusIPK($ipk)
+{
     if ($ipk >= 3.75) {
         return ['status' => 'Cumlaude', 'class' => 'success'];
     } elseif ($ipk >= 3.50) {
@@ -53,6 +54,7 @@ function getStatusIPK($ipk) {
 ?>
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -67,18 +69,21 @@ function getStatusIPK($ipk) {
             min-height: 100vh;
             padding: 40px 0;
         }
+
         .main-container {
             background: white;
             border-radius: 15px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
             padding: 30px;
         }
+
         .header-section {
             text-align: center;
             margin-bottom: 30px;
             padding-bottom: 20px;
             border-bottom: 3px solid #667eea;
         }
+
         .stats-card {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
@@ -87,27 +92,33 @@ function getStatusIPK($ipk) {
             margin-bottom: 20px;
             text-align: center;
         }
+
         .table-container {
             overflow-x: auto;
         }
+
         .custom-table {
             border-radius: 10px;
             overflow: hidden;
         }
+
         .custom-table thead {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
         }
+
         .custom-table tbody tr:hover {
             background-color: #f8f9fa;
             transition: all 0.3s;
         }
+
         .badge-custom {
             padding: 8px 15px;
             border-radius: 20px;
         }
     </style>
 </head>
+
 <body>
     <div class="container">
         <div class="main-container">
@@ -188,7 +199,7 @@ function getStatusIPK($ipk) {
             <!-- Footer -->
             <div class="text-center mt-4 pt-3 border-top">
                 <p class="text-muted mb-0">
-                    <i class="bi bi-code-slash"></i> 
+                    <i class="bi bi-code-slash"></i>
                     Dibuat dengan PHP Native + Bootstrap 5
                 </p>
                 <p class="text-muted small">© 2025 KSI - Keamanan Sistem Informasi</p>
@@ -199,4 +210,5 @@ function getStatusIPK($ipk) {
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>
+
 </html>
