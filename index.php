@@ -36,7 +36,7 @@ $mahasiswa = [
         'semester' => 5,
         'ipk' => 3.55
     ]
-]
+    ];
 
 // Fungsi untuk menentukan status IPK
 function getStatusIPK($ipk)
