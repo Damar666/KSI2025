@@ -1,4 +1,5 @@
 <?php
+// --- INI ADALAH PERUBAHAN DARI BRANCH KONEKSIDATABASE ---
 // --- Konfigurasi Database ---
 $server   = "localhost"; // Nama server database (biasanya "localhost")
 $user     = "root";      // Username database (default XAMPP/Laragon)
