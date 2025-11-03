@@ -1,44 +1,13 @@
 <?php
-// Data mahasiswa (simulasi database)
-$mahasiswa = [
-    [
-        'nim' => '2211040001',
-        'nama' => 'Zakkya Nurhadi',
-        'jurusan' => 'Manajemen Informatika',
-        'semester' => 5,
-        'ipk' => 3.75
-    ],
-    [
-        'nim' => '2211040002',
-        'nama' => 'Siti Nurhaliza',
-        'jurusan' => 'Sistem Informasi',
-        'semester' => 5,
-        'ipk' => 3.85
-    ],
-    [
-        'nim' => '2211040003',
-        'nama' => 'Budi Santoso',
-        'jurusan' => 'Teknik Informatika',
-        'semester' => 5,
-        'ipk' => 3.60
-    ],
-    [
-        'nim' => '2211040004',
-        'nama' => 'Dewi Lestari',
-        'jurusan' => 'Sistem Informasi',
-        'semester' => 5,
-        'ipk' => 3.90
-    ],
-    [
-        'nim' => '2211040005',
-        'nama' => 'Eko Prasetyo',
-        'jurusan' => 'Teknik Informatika',
-        'semester' => 5,
-        'ipk' => 3.55
-    ]
-    ];
+// 1. Sertakan file koneksi Anda
+include 'koneksi.php';
 
-// Fungsi untuk menentukan status IPK
+// 2. Buat query untuk mengambil data mahasiswa DARI DATABASE
+$sql = "SELECT * FROM mahasiswa";
+$hasil_query = $koneksi->query($sql);
+
+// --- Fungsi untuk menentukan status IPK ---
+// (Fungsi ini Anda biarkan saja, sudah benar)
 function getStatusIPK($ipk)
 {
     if ($ipk >= 3.75) {
@@ -51,6 +20,25 @@ function getStatusIPK($ipk)
         return ['status' => 'Cukup', 'class' => 'secondary'];
     }
 }
+
+// --- Logika untuk menghitung statistik ---
+// Kita perlu mengambil data ke array dulu untuk menghitung statistik
+$mahasiswa_dari_db = [];
+if ($hasil_query && $hasil_query->num_rows > 0) {
+    while ($row = $hasil_query->fetch_assoc()) {
+        $mahasiswa_dari_db[] = $row;
+    }
+}
+// Setel ulang pointer hasil query untuk looping di tabel nanti
+if ($hasil_query) {
+    $hasil_query->data_seek(0); // Kembali ke awal data
+}
+
+// Gunakan data dari DB untuk statistik
+$total_mahasiswa = count($mahasiswa_dari_db);
+$total_ipk = ($total_mahasiswa > 0) ? array_sum(array_column($mahasiswa_dari_db, 'ipk')) : 0;
+$rata_rata_ipk = ($total_mahasiswa > 0) ? $total_ipk / $total_mahasiswa : 0;
+$total_cumlaude = count(array_filter($mahasiswa_dari_db, fn ($m) => $m['ipk'] >= 3.75));
 ?>
 <!DOCTYPE html>
 <html lang="id">
@@ -59,9 +47,7 @@ function getStatusIPK($ipk)
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Data Mahasiswa - KSI 2025</title>
-    <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Bootstrap Icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
     <style>
         body {
@@ -122,7 +108,6 @@ function getStatusIPK($ipk)
 <body>
     <div class="container">
         <div class="main-container">
-            <!-- Header -->
             <div class="header-section">
                 <h1 class="display-4 fw-bold">
                     <i class="bi bi-mortarboard-fill text-primary"></i>
@@ -131,29 +116,33 @@ function getStatusIPK($ipk)
                 <p class="lead text-muted">Sistem Informasi Akademik - KSI 2025</p>
             </div>
 
-            <!-- Statistics Cards -->
+            <div class="d-flex justify-content-end mb-3">
+                <a href="form_tambah.php" class="btn btn-primary">
+                    <i class="bi bi-plus-circle-fill"></i> Tambah Data Mahasiswa
+                </a>
+            </div>
+
             <div class="row mb-4">
                 <div class="col-md-4">
                     <div class="stats-card">
-                        <h3 class="display-6"><?= count($mahasiswa) ?></h3>
+                        <h3 class="display-6"><?= $total_mahasiswa ?></h3>
                         <p class="mb-0"><i class="bi bi-people-fill"></i> Total Mahasiswa</p>
                     </div>
                 </div>
                 <div class="col-md-4">
                     <div class="stats-card">
-                        <h3 class="display-6"><?= number_format(array_sum(array_column($mahasiswa, 'ipk')) / count($mahasiswa), 2) ?></h3>
+                        <h3 class="display-6"><?= number_format($rata_rata_ipk, 2) ?></h3>
                         <p class="mb-0"><i class="bi bi-graph-up"></i> Rata-rata IPK</p>
                     </div>
                 </div>
                 <div class="col-md-4">
                     <div class="stats-card">
-                        <h3 class="display-6"><?= count(array_filter($mahasiswa, fn($m) => $m['ipk'] >= 3.75)) ?></h3>
+                        <h3 class="display-6"><?= $total_cumlaude ?></h3>
                         <p class="mb-0"><i class="bi bi-trophy-fill"></i> Cumlaude</p>
                     </div>
                 </div>
             </div>
 
-            <!-- Table -->
             <div class="table-container">
                 <table class="table table-hover custom-table">
                     <thead>
@@ -169,34 +158,48 @@ function getStatusIPK($ipk)
                     </thead>
                     <tbody>
                         <?php $no = 1; ?>
-                        <?php foreach ($mahasiswa as $mhs): ?>
-                            <?php $status = getStatusIPK($mhs['ipk']); ?>
+                        <?php
+                        // Ganti loop foreach menjadi loop while dari hasil query
+                        if ($hasil_query && $hasil_query->num_rows > 0) :
+                            while ($mhs = $hasil_query->fetch_assoc()) :
+                        ?>
+                                <?php $status = getStatusIPK($mhs['ipk']); ?>
+                                <tr>
+                                    <td class="text-center fw-bold"><?= $no++ ?></td>
+                                    <td><?= htmlspecialchars($mhs['nim']) ?></td>
+                                    <td>
+                                        <i class="bi bi-person-circle text-primary"></i>
+                                        <strong><?= htmlspecialchars($mhs['nama']) ?></strong>
+                                    </td>
+                                    <td><?= htmlspecialchars($mhs['jurusan']) ?></td>
+                                    <td class="text-center">
+                                        <span class="badge bg-secondary"><?= htmlspecialchars($mhs['semester']) ?></span>
+                                    </td>
+                                    <td class="text-center">
+                                        <strong class="text-<?= $status['class'] ?>"><?= number_format($mhs['ipk'], 2) ?></strong>
+                                    </td>
+                                    <td class="text-center">
+                                        <span class="badge bg-<?= $status['class'] ?> badge-custom">
+                                            <?= $status['status'] ?>
+                                        </span>
+                                    </td>
+                                </tr>
+                            <?php
+                            endwhile;
+                        else :
+                            ?>
                             <tr>
-                                <td class="text-center fw-bold"><?= $no++ ?></td>
-                                <td><?= $mhs['nim'] ?></td>
-                                <td>
-                                    <i class="bi bi-person-circle text-primary"></i>
-                                    <strong><?= $mhs['nama'] ?></strong>
-                                </td>
-                                <td><?= $mhs['jurusan'] ?></td>
-                                <td class="text-center">
-                                    <span class="badge bg-secondary"><?= $mhs['semester'] ?></span>
-                                </td>
-                                <td class="text-center">
-                                    <strong class="text-<?= $status['class'] ?>"><?= number_format($mhs['ipk'], 2) ?></strong>
-                                </td>
-                                <td class="text-center">
-                                    <span class="badge bg-<?= $status['class'] ?> badge-custom">
-                                        <?= $status['status'] ?>
-                                    </span>
-                                </td>
+                                <td colspan="7" class="text-center">Tidak ada data mahasiswa di database.</td>
                             </tr>
-                        <?php endforeach; ?>
+                        <?php
+                        endif;
+                        // Tutup koneksi
+                        $koneksi->close();
+                        ?>
                     </tbody>
                 </table>
             </div>
 
-            <!-- Footer -->
             <div class="text-center mt-4 pt-3 border-top">
                 <p class="text-muted mb-0">
                     <i class="bi bi-code-slash"></i>
@@ -207,8 +210,5 @@ function getStatusIPK($ipk)
         </div>
     </div>
 
-    <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>
-
-</html>
